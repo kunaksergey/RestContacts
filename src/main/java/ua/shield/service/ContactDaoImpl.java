@@ -36,22 +36,21 @@ public class ContactDaoImpl implements ContactDao {
         List<Contact> contactsList = new LinkedList<>();
         List<Contact> cashInner = new ArrayList<>();
         if (cashList == null) {
-            Connection connection = dataSource.getConnection();
-            connection.setAutoCommit(false);
-
-            Statement statement = connection.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                    java.sql.ResultSet.CONCUR_READ_ONLY);
-            statement.setFetchSize(fetchSize);
-            ResultSet resultSet = statement.executeQuery(strSql);
-            while (resultSet.next()) {
-                cashInner.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
-                if (!resultSet.getString("name").matches(filterPattern))
-                    contactsList.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
+            try (Connection connection = dataSource.getConnection()) {
+                 connection.setAutoCommit(false);
+                Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                        ResultSet.CONCUR_READ_ONLY);
+                statement.setFetchSize(fetchSize);
+                ResultSet resultSet = statement.executeQuery(strSql);
+                while (resultSet.next()) {
+                    cashInner.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
+                    if (!resultSet.getString("name").matches(filterPattern))
+                        contactsList.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
+                }
+                setCashList(cashInner);
+            } catch (SQLException e) {
+                throw new SQLException(e);
             }
-            setCashList(cashInner);
-            resultSet.close();
-            statement.close();
-            connection.close();
         } else {
             contactsList = cashList.parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
         }
