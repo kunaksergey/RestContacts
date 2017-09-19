@@ -27,19 +27,23 @@ public class ContactDaoImpl implements ContactDao {
         this.dataSource = dataSource;
     }
 
+
     @Override
     public List<Contact> findAllByFilter(String filterPattern) throws SQLException {
         List<Contact> contactsList = new LinkedList<>();
-        Connection connection = dataSource.getConnection();
-        connection.setAutoCommit(false);
-        Statement statement = connection.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
-                java.sql.ResultSet.CONCUR_READ_ONLY);
-        statement.setFetchSize(fetchSize);
-        ResultSet resultSet = statement.executeQuery(strSql);
-        while (resultSet.next()) {
-            if (!resultSet.getString("name").matches(filterPattern))
-                contactsList.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
-        }
+            Connection connection = dataSource.getConnection();
+            connection.setAutoCommit(false);
+            Statement statement = connection.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY,
+                    java.sql.ResultSet.CONCUR_READ_ONLY);
+            statement.setFetchSize(fetchSize);
+            ResultSet resultSet = statement.executeQuery(strSql);
+            while (resultSet.next()) {
+                if (!resultSet.getString("name").matches(filterPattern))
+                    contactsList.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
+            }
+        resultSet.close();
+        statement.close();
+        connection.close();
         return contactsList;
     }
 }

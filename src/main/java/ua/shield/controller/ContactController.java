@@ -21,6 +21,7 @@ public class ContactController {
 
     private ContactDao contactDao;
 
+
     @Autowired
     public ContactController(ContactDao contactDao) {
         this.contactDao = contactDao;
@@ -42,5 +43,4 @@ public class ContactController {
         }
     }
 
-
-}
+ }
