@@ -1,0 +1,21 @@
+1.Ставим vagrant
+2.Ставим virtual box
+3.vagrant ini
+4.ложим наши файлы Vagrantfile и vagrant_provision.sh в нашу директорию
+5.запускаемся vagrant up
+
+БД: ставим postgress:
+ sudo apt-get install postgresql postgresql-contrib -y
+Заливаем скрипты:
+ sudo -u postgres psql < RestContacts/src/main/resources/postgress.sql
+ sudo -u postgres psql < RestContacts/src/main/resources/user_dataH2.sql
+ставим пароль на postgress:
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+запускаемся после сборки:
+sudo java -jar RestContacts/target/restContacts-1.0.1.jar
+
+/****/
+Не совсем понятно было:
+---Учитывать, что сервис должен быть готов одновременно обрабатывать множество запросов
+потоками управляем контейнер, а springboot по умолчанию используеться pool connection-ов
+если что-то другое, не могли бы Вы уточнить.
