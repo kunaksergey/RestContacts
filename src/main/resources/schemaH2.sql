@@ -1,0 +1,4 @@
+CREATE TABLE contacts (
+  id INTEGER PRIMARY KEY,
+  name VARCHAR(30)
+);
