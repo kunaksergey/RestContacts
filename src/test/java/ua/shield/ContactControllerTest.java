@@ -86,8 +86,8 @@ public class ContactControllerTest {
     public void daoThrowExeption() throws Exception {
         MockMvc mockMvcIn = MockMvcBuilders.standaloneSetup(new ContactController(new ContactDao() {
             @Override
-            public List<Contact> findAllByFilter(String filterPattern) throws SQLException {
-                throw new SQLException();
+            public List<Contact> findAllByFilter(String filterPattern) throws RuntimeException {
+                throw new RuntimeException();
             }
         })).build();
 

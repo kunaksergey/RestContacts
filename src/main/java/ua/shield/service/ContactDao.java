@@ -9,5 +9,5 @@ import java.util.List;
  * Created by sa on 19.09.17.
  */
 public interface ContactDao {
-    List<Contact> findAllByFilter(String filterPattern) throws SQLException;
+    List<Contact> findAllByFilter(String filterPattern) throws RuntimeException;
 }

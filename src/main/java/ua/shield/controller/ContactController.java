@@ -21,7 +21,6 @@ public class ContactController {
 
     private ContactDao contactDao;
 
-
     @Autowired
     public ContactController(ContactDao contactDao) {
         this.contactDao = contactDao;
@@ -32,7 +31,7 @@ public class ContactController {
         List<Contact> allByFilter;
         try {
             allByFilter = contactDao.findAllByFilter(pattern);
-        } catch (SQLException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

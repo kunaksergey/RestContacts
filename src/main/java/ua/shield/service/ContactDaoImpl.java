@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.shield.entity.Contact;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,37 +30,35 @@ public class ContactDaoImpl implements ContactDao {
         this.dataSource = dataSource;
     }
 
+    @PostConstruct
+    private void init() {
+        cashList = findAll();
+        System.out.println("Cache started");
+    }
 
     @Override
-    public List<Contact> findAllByFilter(String filterPattern) throws SQLException {
-        List<Contact> contactsList = new LinkedList<>();
-        List<Contact> cashInner = new ArrayList<>();
-        if (cashList == null) {
-            try (Connection connection = dataSource.getConnection()) {
-                 connection.setAutoCommit(false);
-                Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
-                        ResultSet.CONCUR_READ_ONLY);
-                statement.setFetchSize(fetchSize);
-                ResultSet resultSet = statement.executeQuery(strSql);
-                while (resultSet.next()) {
-                    cashInner.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
-                    if (!resultSet.getString("name").matches(filterPattern))
-                        contactsList.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
-                }
-                setCashList(cashInner);
-            } catch (SQLException e) {
-                throw new SQLException(e);
+    public List<Contact> findAllByFilter(String filterPattern)   {
+       return cashList.parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
+    }
+
+
+    private List<Contact> findAll() {
+        List<Contact> contactsList = new ArrayList<>();
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            Statement statement = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,
+                    ResultSet.CONCUR_READ_ONLY);
+            statement.setFetchSize(fetchSize);
+            ResultSet resultSet = statement.executeQuery(strSql);
+            while (resultSet.next()) {
+                contactsList.add(new Contact(resultSet.getInt("id"), resultSet.getString("name")));
             }
-        } else {
-            contactsList = cashList.parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
+            return contactsList;
+        } catch (SQLException e) {
+            e.getStackTrace();
         }
         return contactsList;
     }
 
-    private static void setCashList(List<Contact> cash) {
-        synchronized (ContactDaoImpl.class) {
-            if (cashList == null)
-                ContactDaoImpl.cashList = cash;
-        }
-    }
+
 }
