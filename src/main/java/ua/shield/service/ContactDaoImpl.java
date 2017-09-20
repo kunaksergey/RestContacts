@@ -21,8 +21,6 @@ import java.util.stream.Collectors;
 public class ContactDaoImpl implements ContactDao {
     private static final String strSql = "select *from contacts";
     private static final int fetchSize = 10000;
-    private static List<Contact> cashList;
-
     private DataSource dataSource;
 
     @Autowired
@@ -32,13 +30,13 @@ public class ContactDaoImpl implements ContactDao {
 
     @PostConstruct
     private void init() {
-        cashList = findAll();
+        Cashe.getInstance().setCashList(findAll());
         System.out.println("Cache started");
     }
 
     @Override
     public List<Contact> findAllByFilter(String filterPattern)   {
-       return cashList.parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
+       return  Cashe.getInstance().getCashList().parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
     }
 
 
