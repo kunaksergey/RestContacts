@@ -10,6 +10,7 @@ import java.util.List;
 public class Cashe {
     private static Cashe cache;
     private List<Contact> cashList;
+    private Cashe(){}
     public static Cashe getInstance(){
         if(cache==null)
             cache=new Cashe();
