@@ -58,7 +58,7 @@ public class ContactDaoImpl implements ContactDao {
         return contactsList;
     }
 
-    @Scheduled(fixedDelay = 60000,initialDelay = 60000)
+    @Scheduled(fixedDelayString = "${spring.fixedDelay.in.millisecond}",initialDelayString = "${spring.initialDelay.in.millisecond}")
     private void updateCashe() {
         Cashe.getInstance().setCashList(findAll());
         System.out.println("Cache update");
