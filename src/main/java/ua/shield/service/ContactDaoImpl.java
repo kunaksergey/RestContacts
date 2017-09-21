@@ -1,6 +1,7 @@
 package ua.shield.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ua.shield.entity.Contact;
 
@@ -30,13 +31,12 @@ public class ContactDaoImpl implements ContactDao {
 
     @PostConstruct
     private void init() {
-        Cashe.getInstance().setCashList(findAll());
-        System.out.println("Cache started");
+        updateCashe();
     }
 
     @Override
-    public List<Contact> findAllByFilter(String filterPattern)   {
-       return  Cashe.getInstance().getCashList().parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
+    public List<Contact> findAllByFilter(String filterPattern) {
+        return Cashe.getInstance().getCashList().parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
     }
 
 
@@ -58,5 +58,9 @@ public class ContactDaoImpl implements ContactDao {
         return contactsList;
     }
 
-
+    @Scheduled(fixedDelay = 60000,initialDelay = 60000)
+    private void updateCashe() {
+        Cashe.getInstance().setCashList(findAll());
+        System.out.println("Cache update");
+    }
 }

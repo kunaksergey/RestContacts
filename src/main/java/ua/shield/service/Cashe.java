@@ -21,7 +21,7 @@ public class Cashe {
         return cashList;
     }
 
-    public void setCashList(List<Contact> cashList) {
+    void setCashList(List<Contact> cashList) {
         this.cashList = cashList;
     }
 }
