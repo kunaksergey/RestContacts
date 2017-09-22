@@ -1,11 +1,20 @@
 package ua.shield.entity;
 
+import javax.persistence.*;
+import java.io.Serializable;
+
 /**
  * Created by sa on 18.09.17.
  */
-public class Contact {
+@Entity
+@Table(name="contacts")
+public class Contact implements Serializable{
 
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Integer id;
+
+    @Column(name="name")
     private String name;
 
     public Contact() {

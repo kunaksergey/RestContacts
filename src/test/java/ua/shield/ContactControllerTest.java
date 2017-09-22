@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -14,11 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.shield.controller.ContactController;
 import ua.shield.entity.Contact;
-import ua.shield.service.ContactDao;
-import ua.shield.service.ContactDaoImpl;
+import ua.shield.service.ContactService;
+import ua.shield.service.ContactServiceImpl;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,11 +36,9 @@ public class ContactControllerTest {
     private final String nameFilterOne="^A.*$";
     private final String nameFilterTwo="^.*[aei].*$";
 
-    @Mock
-    private ContactDao contactDaoMock;
 
-    @Autowired
-    private DataSource dataSource;
+    @Mock
+    private ContactService contactServiceMock;
 
     private MockMvc mockMvc;
 
@@ -51,8 +46,7 @@ public class ContactControllerTest {
 
     @Before
     public void setup(){
-        Mockito.reset(contactDaoMock);
-        mockMvc = MockMvcBuilders.standaloneSetup(new ContactController(contactDaoMock)).build();
+       mockMvc = MockMvcBuilders.standaloneSetup(new ContactController(contactServiceMock)).build();
     }
 
     @Test
@@ -64,12 +58,10 @@ public class ContactControllerTest {
 
     @Test
     public void withFilter() throws Exception {
-        when(contactDaoMock.findAllByFilter(nameFilterOne)).thenReturn(Arrays.asList(
+        when(contactServiceMock.findAllByFilter(nameFilterOne)).thenReturn(Arrays.asList(
                 new Contact(1, "Petya"),
                 new Contact(2, "Vasya"),
-                new Contact(3, "Sergey")
-
-        ));
+                new Contact(3, "Sergey")));
 
         mockMvc.perform(get("/hello/contacts?nameFilter="+nameFilterOne))
                 .andExpect(status().isOk())
@@ -83,31 +75,29 @@ public class ContactControllerTest {
     }
 
     @Test
-    public void daoThrowExeption() throws Exception {
-        MockMvc mockMvcIn = MockMvcBuilders.standaloneSetup(new ContactController(new ContactDao() {
+    public void serviceThrowExeption() throws Exception {
+        MockMvc exeptionMock = MockMvcBuilders.standaloneSetup(new ContactController(new ContactService() {
+            @Override
+            public List<Contact> findAll() {
+                return null;
+            }
+
             @Override
             public List<Contact> findAllByFilter(String filterPattern) throws RuntimeException {
                 throw new RuntimeException();
             }
         })).build();
-
-        mockMvcIn.perform(get("/hello/contacts?nameFilter="+nameFilterOne))
+        exeptionMock.perform(get("/hello/contacts?nameFilter="+nameFilterOne))
                 .andExpect(status().isInternalServerError());
     }
 
     @Test
     public void testFilterOne() throws Exception{
-        ContactDao contactDao=new ContactDaoImpl(dataSource);
-        Contact[] contacts={new Contact(1,"Petya"),
-                new Contact(2,"Vasya"),
-                new Contact(4,"Sergey")};
-        Assert.assertArrayEquals(contacts,contactDao.findAllByFilter(nameFilterOne).toArray());
+
     }
 
     @Test
     public void testFilterTwo() throws Exception{
-        ContactDao contactDao=new ContactDaoImpl(dataSource);
-        Contact[] contacts={new Contact(3,"Anton")};
-        Assert.assertArrayEquals(contacts,contactDao.findAllByFilter(nameFilterTwo).toArray());
+
     }
 }
