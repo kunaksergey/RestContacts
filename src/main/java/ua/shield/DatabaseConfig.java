@@ -64,6 +64,9 @@ public class DatabaseConfig {
         additionalProperties.put(
                 "hibernate.hbm2ddl.auto",
                 env.getProperty("hibernate.hbm2ddl.auto"));
+
+
+
         entityManagerFactory.setJpaProperties(additionalProperties);
 
 

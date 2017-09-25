@@ -1,8 +1,6 @@
 package ua.shield.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import ua.shield.entity.Contact;
 
@@ -20,7 +18,6 @@ public class ContactServiceImpl implements ContactService {
     ContactRepository contactRepository;
 
     @Override
-    //@Cacheable("contacts")
     public Iterable<Contact> findAll() {
         long start = System.currentTimeMillis();
         Iterable<Contact> contacts = contactRepository.findAll();
