@@ -1,11 +1,13 @@
 package ua.shield.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import ua.shield.entity.Contact;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -18,14 +20,21 @@ public class ContactServiceImpl implements ContactService {
     ContactRepository contactRepository;
 
     @Override
-    @Cacheable("contacts")
-    public List<Contact> findAll() {
-        return (List<Contact>) contactRepository.findAll();
+    //@Cacheable("contacts")
+    public Iterable<Contact> findAll() {
+        long start = System.currentTimeMillis();
+        Iterable<Contact> contacts = contactRepository.findAll();
+        System.out.println("Quary: "+(System.currentTimeMillis()-start));
+        return contacts;
     }
 
     @Override
     public List<Contact> findAllByFilter(String filterPattern) {
-        return findAll().parallelStream().filter(e -> !e.getName().matches(filterPattern)).collect(Collectors.toList());
+        Pattern pattern=Pattern.compile(filterPattern);
+        long start = System.currentTimeMillis();
+        List<Contact> listContact= ((List<Contact>)findAll()).stream().filter(e -> !pattern.matcher(e.getName()).matches()).collect(Collectors.toList());
+        System.out.println(System.currentTimeMillis()-start);
+        return listContact;
     }
 }
 

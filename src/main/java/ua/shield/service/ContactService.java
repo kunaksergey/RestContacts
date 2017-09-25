@@ -8,6 +8,6 @@ import java.util.List;
  * Created by sa on 22.09.17.
  */
 public interface ContactService {
-    List<Contact> findAll();
+    Iterable<Contact> findAll();
     List<Contact> findAllByFilter(String filterPattern) throws RuntimeException;
 }

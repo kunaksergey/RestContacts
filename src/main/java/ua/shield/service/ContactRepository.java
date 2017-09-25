@@ -9,6 +9,6 @@ import ua.shield.entity.Contact;
 /**
  * Created by sa on 22.09.17.
  */
-@Component
+
 public interface ContactRepository extends CrudRepository<Contact,Integer> {
 }
